@@ -1,0 +1,7 @@
+﻿[*.cs]
+
+# IDE0011: Добавить фигурные скобки
+csharp_prefer_braces = when_multiline
+
+# IDE0022: Использовать тело блока для методов
+csharp_style_expression_bodied_methods = when_on_single_line

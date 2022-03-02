@@ -1,0 +1,150 @@
+﻿<Window x:Class="PasswordManager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PasswordManager"
+        mc:Ignorable="d"
+        Height="450" MinHeight="400" Width="800" MinWidth="530" WindowStartupLocation="CenterScreen" Closing="OnClosing">
+    <Window.CommandBindings>
+        <CommandBinding Command="New" Executed="NewBase"/>
+        <CommandBinding Command="Open" Executed="OpenBase"/>
+        <CommandBinding Command="Save" Executed="SaveBase"/>
+        <CommandBinding Command="SaveAs" Executed="SaveBaseAs"/>
+        <CommandBinding Command="Close" Executed="Quit"/>
+    </Window.CommandBindings>
+    <Window.InputBindings>
+        <KeyBinding Command="SaveAs" Key="S" Modifiers="Ctrl+Shift"/>
+    </Window.InputBindings>
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="10 0"/>
+        </Style>
+        <Style TargetType="TabItem">
+            <Setter Property="Padding" Value="15 4"/>
+        </Style>
+        <Style TargetType="Label">
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Padding" Value="2 0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Height" Value="26"/>
+        </Style>
+        <Style TargetType="GridSplitter">
+            <Setter Property="Width" Value="6"/>
+            <Setter Property="Grid.RowSpan" Value="2"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="ResizeDirection" Value="Columns"/>
+        </Style>
+        <Style TargetType="TextBox" x:Key="TextBoxField">
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="VerticalContentAlignment" Value="Top"/>
+            <Setter Property="Height" Value="Auto"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="AcceptsReturn" Value="True"/>
+            <Setter Property="AcceptsTab" Value="True"/>
+            <Setter Property="Grid.ColumnSpan" Value="2"/>
+        </Style>
+        <DataTemplate x:Key="ListBoxItemTemplate">
+            <TextBlock Padding="2 4" Text="{Binding Name}" TextTrimming="CharacterEllipsis"/>
+        </DataTemplate>
+        <DataTemplate x:Key="NoteTemplate">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Label Content="Название заметки"/>
+                <TextBox Grid.Column="1" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, NotifyOnSourceUpdated=True}"/>
+                <TextBox Style="{StaticResource TextBoxField}" Grid.Row="1" Margin="0 4 0 2" Text="{Binding Content, UpdateSourceTrigger=PropertyChanged, NotifyOnSourceUpdated=True}"/>
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="PasswordTemplate">
+            <Grid Margin="0 -1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="32"/>
+                    <RowDefinition Height="32"/>
+                    <RowDefinition Height="32"/>
+                    <RowDefinition Height="26"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Label Content="Название записи"/>
+                <TextBox Grid.Column="1" Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, NotifyOnSourceUpdated=True}"/>
+                <Label Content="Логин" Grid.Row="1"/>
+                <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding Login, UpdateSourceTrigger=PropertyChanged, NotifyOnSourceUpdated=True}"/>
+                <Label Content="Пароль" Grid.Row="2"/>
+                <local:PasswordBlock Grid.Column="1" Grid.Row="2" Password="{Binding Password, UpdateSourceTrigger=PropertyChanged, NotifyOnSourceUpdated=True}"/>
+                <Label Content="Примечание" Margin="0 0 24 0" Grid.Row="3"/>
+                <TextBox Grid.Row="4" Margin="0 0 0 3" Style="{StaticResource TextBoxField}" Text="{Binding Comment, UpdateSourceTrigger=PropertyChanged, NotifyOnSourceUpdated=True}" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+            </Grid>
+        </DataTemplate>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="24"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Menu>
+            <MenuItem Header="_Файл" Height="24">
+                <MenuItem Header="Создать _новую базу..." Command="New"/>
+                <MenuItem Header="_Открыть базу..." Command="Open"/>
+                <MenuItem Header="_Сохранить" Command="Save"/>
+                <MenuItem Header="Сохранить _как..." Command="SaveAs" InputGestureText="Ctrl+Shift+S"/>
+                <MenuItem Header="_Закрыть" Command="Close"/>
+            </MenuItem>
+            <MenuItem Header="_Изменить мастер-пароль" Click="ChangePassword"/>
+            <MenuItem Header="_Генератор паролей" Click="OpenGeneratorWindow" ToolTip="Открыть генератор паролей"/>
+            <MenuItem Header="_О программе" Click="ShowAbout"/>
+        </Menu>
+        <TabControl TabStripPlacement="Bottom" Grid.Row="1">
+            <TabItem Header="Пароли">
+                <Grid Margin="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="200" MaxWidth="400"/>
+                        <ColumnDefinition Width="2*" MinWidth="300"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="32"/>
+                    </Grid.RowDefinitions>
+                    <ListBox Name="PasswordsListBox" Background="#FFE5E5E5" Margin="0,0,6,0" ItemsSource="{Binding Path=Data.Passwords}" IsSynchronizedWithCurrentItem="True" ItemTemplate="{StaticResource ListBoxItemTemplate}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionChanged="PasswordSelectionChanged" BorderThickness="1 1 1 0"/>
+                    <Button Grid.Row="1" Margin="0,0,6,0" Content="Создать новую запись" Click="CreatePassword"/>
+                    <GridSplitter/>
+                    <ContentControl Name="PasswordContentControl" Content="{Binding Path=Data.Passwords}" ContentTemplate="{StaticResource PasswordTemplate}" Grid.Column="1" SourceUpdated="DataChanged"/>
+                    <Button Name="RemovePasswordButton" Grid.Row="1" Grid.Column="1" Margin="0 4 0 0" HorizontalAlignment="Right" Content="Удалить запись" Click="RemovePassword"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Заметки">
+                <Grid Margin="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" MinWidth="200" MaxWidth="400"/>
+                        <ColumnDefinition Width="2*" MinWidth="300"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition Height="32"/>
+                    </Grid.RowDefinitions>
+                    <ListBox Name="NotesListBox" Background="#FFE5E5E5" Margin="0,0,6,0" ItemsSource="{Binding Path=Data.Notes}" IsSynchronizedWithCurrentItem="True" ItemTemplate="{StaticResource ListBoxItemTemplate}" ScrollViewer.HorizontalScrollBarVisibility="Disabled" SelectionChanged="NoteSelectionChanged" BorderThickness="1 1 1 0"/>
+                    <Button Grid.Row="1" Margin="0,0,6,0" Content="Создать новую заметку" Click="CreateNote"/>
+                    <GridSplitter/>
+                    <ContentControl Name="NoteContentControl" Content="{Binding Path=Data.Notes}" ContentTemplate="{StaticResource NoteTemplate}" Grid.Column="1" SourceUpdated="DataChanged"/>
+                    <Button Name="RemoveNoteButton" Grid.Row="1" Grid.Column="1" Margin="0 4 0 0" HorizontalAlignment="Right" Content="Удалить заметку" Click="RemoveNote"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <Border Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="150 0 5 0" Height="26">
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Right" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}" Text="{Binding FilePath}" TextTrimming="CharacterEllipsis"/>
+        </Border>
+    </Grid>
+</Window>
