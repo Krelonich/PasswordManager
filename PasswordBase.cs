@@ -79,7 +79,10 @@ namespace PasswordManager
             await fsEncrypt.WriteAsync(salt, 0, SALT_LENGTH);
             using (ICryptoTransform encryptor = aes.CreateEncryptor())
             using (CryptoStream csEncrypt = new CryptoStream(fsEncrypt, encryptor, CryptoStreamMode.Write))
+            {
               await JsonSerializer.SerializeAsync(csEncrypt, Data);
+              csEncrypt.FlushFinalBlock();
+            }
           }
         }
         return true;

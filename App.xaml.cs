@@ -14,7 +14,7 @@ namespace PasswordManager
     public static readonly Dictionary<string, Window> windowDictionary = new Dictionary<string, Window>();
     private static PasswordGeneratorWindow generatorWindow;
 
-    public const string ProductName = "Менеджер паролей", ProductVersion = "0.1.1";
+    public const string ProductName = "Менеджер паролей", ProductVersion = "0.1.2";
     private const string AppInstanceName = @"Local\PasswordManager_Instance";
 
     private const string FILE_FILTER = "Файл с базой паролей|*.pbase";
