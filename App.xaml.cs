@@ -61,7 +61,7 @@ namespace PasswordManager
       PrepareBase(new OpenFileDialog { Title = "Открытие базы паролей" }, owner, autoClose);
     public static void CreateBase(Window owner, bool autoClose = false) =>
       PrepareBase(new SaveFileDialog { Title = "Создание базы паролей", FileName = "passwords" }, owner, autoClose);
-    public static async void SaveBase(Window owner, PasswordBase passwordBase)
+    public static async void SaveBase(MainWindow owner, PasswordBase passwordBase)
     {
       SaveFileDialog fileDialog = new SaveFileDialog { Title = "Сохранение базы паролей", FileName = "passwords", Filter = FILE_FILTER };
       owner.IsEnabled = false;
@@ -79,6 +79,7 @@ namespace PasswordManager
           {
             windowDictionary.Remove(currentPath);
             windowDictionary[newPath] = owner;
+            owner.SetDirty(false);
           }
           else
           {
@@ -126,7 +127,7 @@ namespace PasswordManager
 
       while (true)
       {
-        if (owner != null) owner.Normalize();
+        owner?.Normalize();
         PasswordWindow passwordWindow = new PasswordWindow(isNewBase, System.IO.Path.GetFileName(filePath)) { Owner = owner };
         windowDictionary[filePath] = passwordWindow;
 

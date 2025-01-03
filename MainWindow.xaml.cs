@@ -24,14 +24,22 @@ namespace PasswordManager
       PasswordSelectionChanged(null, null);
     }
     private void UpdateTitle() =>
-      Title = $"{passwordBase.FileName} - {App.ProductName}";
+      Title = $"{(isDirty ? "*" : "")}{passwordBase.FileName} – {App.ProductName}";
     private async void ChangeBase(object sender, RoutedEventArgs e)
     {
       if (await ConfirmExit())
       {
         new StartupWindow().Show();
-        isDirty = false;
+        SetDirty(false);
         Close();
+      }
+    }
+    public void SetDirty(bool newValue)
+    {
+      if (isDirty != newValue)
+      {
+        isDirty = newValue;
+        UpdateTitle();
       }
     }
 
@@ -68,7 +76,7 @@ namespace PasswordManager
       listBox.SelectedItem = newElement;
       listBox.ScrollIntoView(newElement);
 
-      isDirty = true;
+      SetDirty(true);
     }
     private void CreateNote(object sender, RoutedEventArgs e) =>
       CreateElement(passwordBase.Data.Notes, NotesListBox, NEW_NOTE);
@@ -84,7 +92,7 @@ namespace PasswordManager
           "Удаление заметки", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes
       )
         passwordBase.Data.Notes.RemoveAt(NotesListBox.SelectedIndex);
-      isDirty = true;
+      SetDirty(true);
     }
     private void NoteSelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
@@ -101,7 +109,7 @@ namespace PasswordManager
           "Удаление записи", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes
       )
         passwordBase.Data.Passwords.RemoveAt(PasswordsListBox.SelectedIndex);
-      isDirty = true;
+      SetDirty(true);
     }
     private void PasswordSelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
     {
@@ -110,7 +118,7 @@ namespace PasswordManager
     }
 
     private void DataChanged(object sender, System.Windows.Data.DataTransferEventArgs e) =>
-      isDirty = true;
+      SetDirty(true);
 
     private async Task<bool> ConfirmExit()
     {
@@ -135,7 +143,7 @@ namespace PasswordManager
     private async void SaveBase(object sender, System.Windows.Input.ExecutedRoutedEventArgs e)
     {
       if (await passwordBase.Save())
-        isDirty = false;
+        SetDirty(false);
     }
     private void SaveBaseAs(object sender, System.Windows.Input.ExecutedRoutedEventArgs e) =>
       App.SaveBase(this, passwordBase);
